@@ -26,19 +26,27 @@
       </fieldset>
     </div>
     <button @click="startGame"> START </button>
+    <chat :id="this.id"></chat>
+
   </div>
 </template>
 
 <script>
+import Chat from './modular/Chat'
+import mixins from '../mixins';
 
 export default {
   name: 'GameSettings',
   props: ['startGame', 'id'],
+  components: {
+    'chat': Chat
+  },
   computed: {
     playerGames () {return this.$store.state.game},
-    ws () {return this.$store.state.lobby.ws}
+    ws () {return this.$store.state.ws}
   },
   methods: {
+    ...mixins,
     kick: function(){
       console.log('yeouch!')
     },

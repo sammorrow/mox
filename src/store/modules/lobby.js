@@ -9,7 +9,7 @@ export default {
       setLobbyAttribute (state, action) {
         const { type, quantity } = action
         state[type] = quantity
-      }
+      },
     },
     actions: {
       setLobbyAttributes ({commit}, action){

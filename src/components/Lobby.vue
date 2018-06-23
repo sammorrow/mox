@@ -2,8 +2,8 @@
 <div class="lobby-container">
   <div class="lobby">
     <h1 class="lobby-header"> <span class="left"> VAST ONLINE </span> </h1>
-    <div>
-      <p> Welcome! There's currently {{ lobbyState.numUsers }} players in {{ lobbyState.numActiveGames }} games. </p>
+    <div class="lobby-subheader">
+      <p> {{ lobbyState.numUsers }} user{{lobbyState.numUsers !== 1 ? 's' : '' }} online • {{ lobbyState.numPlayers}} player{{lobbyState.numPlayers !== 1 ? 's' : '' }} in {{ lobbyState.numActiveGames }} game{{lobbyState.numActiveGames !== 1 ? 's' : '' }}</p>
     </div>
     <div>
       <fieldset class="lobby-box">
@@ -29,17 +29,26 @@
     <div>
       <fieldset>
         <legend align="left"> Join a room </legend>
-        <table>
+        <table v-if="noRooms()">
+          <div class="rooms-message">
+            <p> There are no open rooms. </p>
+          </div>
+        </table>
+        <table v-else>
+          <thead>
           <th> Name </th>
           <th> Format </th>
           <th> Seats </th>
           <th> </th>
-          <tr :key="room.id" v-for="room of lobbyState.roomInfo">
-            <td> {{ room.title }} </td>
-            <td> Normal </td>
-            <td> {{ room.usedSeats }} / {{ room.totalSeats }} </td>
-            <td> <router-link :to="{path: `/g/${room.id}`}"> Join room </router-link> </td>
-          </tr>
+          </thead>
+          <tbody>
+            <tr :key="room.id" v-for="room of lobbyState.roomInfo">
+              <td> {{ room.title }} </td>
+              <td> Normal </td>
+              <td> {{ room.usedSeats }} / {{ room.totalSeats }} </td>
+              <td> <router-link :to="{path: `/g/${room.id}`}"> Join room </router-link> </td>
+            </tr>
+          </tbody>
         </table>
       </fieldset>
     </div>
@@ -48,29 +57,35 @@
 </template>
 
 <script>
-  export default {
-    name: 'lobby',
-    data () {
-      return {
-        title: 'Default',
-        seats: 4,
-        isPrivate: false,
-      }
+import { mapActions } from 'vuex'
+import mixins from '../mixins';
+
+export default {
+  name: 'lobby',
+  data () {
+    return {
+      title: 'Default',
+      seats: 4,
+      isPrivate: false,
+    }
+  },
+  computed: {
+    lobbyState () {return this.$store.state.lobby},
+    ws () {return this.$store.state.ws}
+  },
+  methods: {
+    ...mixins,
+    createRoom(){
+      this.send('create', this.$data)
     },
-    computed: {
-      lobbyState () {return this.$store.state.lobby},
-      ws () {return this.$store.state.lobby.ws}
-    },
-    methods: {
-      createRoom(){
-        console.log(this.ws)
-        this.ws.send(JSON.stringify(['create', this.$data]))
-      }
+    noRooms(){
+      return this.lobbyState.roomInfo.length === 0
     }
   }
+}
 </script>
 
-<style>
+<style scoped>
 h1 {
   font-family: 'Montserrat', 'Arial', sans-serif;
   text-transform: uppercase;
@@ -82,7 +97,7 @@ fieldset {
   border: solid #ccc 1px;
   line-height: 20px;
   padding: 10px;
-  margin: 10px;
+  margin: 10px 0;
 }
 
 legend {
@@ -163,6 +178,11 @@ button {
   height: 40px;
 }
 
+.lobby-subheader, .rooms-message {
+  display: flex;
+  justify-content: flex-start;
+}
+
 .lobby-container {
   box-sizing: border-box;
   height: 100%;
@@ -185,5 +205,11 @@ button {
 .left {
   float: left;
 }
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+tr:nth-child(odd) {background: #CCC}
 
 </style>

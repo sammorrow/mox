@@ -9,9 +9,6 @@ pathfinding
 
 ## To-Dos
 
-three-walled tile into dark space bug -- dragon
-
-lobby
 force cave connections
 sidebar -- public opponent information and sheets
 player bar -- player cards, sheets
@@ -36,7 +33,13 @@ the DRAGON
   paying costs for abilities
   
 the GOBLINS
-advanced gobbo pathfinding
+  advanced gobbo pathfinding
 
 
 the CAVE
+  everything  
+
+### bugs
+three-walled tile into dark space  -- dragon
+
+

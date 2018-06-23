@@ -37,11 +37,12 @@ export default {
   mounted () {
      panzoom(document.getElementById('board'), {smoothScroll: false,
           minZoom: 1,
+          maxZoom: 4.25,
           zoomDoubleClickSpeed: 1, 
         }).zoomAbs(
-          document.getElementById('center-cell').getBoundingClientRect().x, // initial x position
-          document.getElementById('center-cell').getBoundingClientRect().y + 300, // initial y position
-          2.5   // initial zoom 
+          document.getElementById('center-cell').getBoundingClientRect().x + 150, // initial x position
+          document.getElementById('center-cell').getBoundingClientRect().y + 200, // initial y position
+          3.5   // initial zoom 
         );
   },
   methods: {

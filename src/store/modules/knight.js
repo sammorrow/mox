@@ -25,7 +25,6 @@ export default {
     movementPoints: 0,
     perceptionPoints: 0,
     strengthPoints: 0,
-    ancientMapPoints: 0
   },
   getters: {
     getPoints: state => type => new Array(state[type]).fill(1).concat(new Array(3 - state[type]).fill(0)),
@@ -71,7 +70,6 @@ export default {
         {type: 'movementPoints', quantity: 0},
         {type: 'perceptionPoints', quantity: 0},
         {type: 'strengthPoints', quantity: 0},
-        {type: 'ancientMapPoints', quantity: 0},
         {type: 'isShielded', quantity: false}
       ]
       dispatch('setAttributes', {actionQueue, type: 'Knight'})
@@ -90,13 +88,13 @@ export default {
       let startPos, endPos, moveOrder
       pathWay.forEach((cell, idx, array) => {
         setTimeout(() => {
-        if (idx === 0) return;
+          if (idx === 0) return;
           startPos = array[idx - 1],
-          endPos = cell,
-          moveOrder = { piece: 'knight', startPos, endPos }
-        if (rootState.board[endPos.y][endPos.x].type === 2) dispatch('knightReveal', {startPos, endPos})
-        dispatch('movePiece', moveOrder)
-        commit('decrementKnightAttribute', {type: 'movement'})      
+            endPos = cell,
+            moveOrder = { piece: 'knight', startPos, endPos }
+          dispatch('movePiece', moveOrder)
+          if (rootState.board[endPos.y][endPos.x].type === 2) dispatch('knightReveal', {startPos, endPos})
+          commit('decrementKnightAttribute', {type: 'movement'})      
           dispatch('refreshKnightPathmap')
         }, 150 * idx)
       })
@@ -109,9 +107,18 @@ export default {
       dispatch('autosetTile', {startPos, endPos, direction})
 
       const updatedEndPos = rootState.board[endPos.y][endPos.x]
-      if (updatedEndPos.tile === "01" || updatedEndPos.tile === "03" ) dispatch('knightOrient', updatedEndPos)
+      if (updatedEndPos.tile.slice(0, 2) === "01" || updatedEndPos.tile.slice(0, 2) === "03" ) dispatch('knightOrient', updatedEndPos)
       else dispatch('autofillTiles', updatedEndPos)
       dispatch('determineGrit', {quantity: 1})
+    },
+    knightEncounter({commit, state, dispatch, rootState}){
+      const { currentPos } = state, tileState = rootState.board[currentPos.y][currentPos.x]
+            console.log('???', tileState.tile)
+      if (tileState.tile.indexOf('a') > -1){
+        console.log('ambushing')
+        dispatch('ambushKnight')
+      }
+      dispatch('refreshKnightPathmap')
     },
     knightOrient ({state, commit, dispatch}, action) {
       const tile = { ...action }
@@ -130,7 +137,6 @@ export default {
       })
       
       newPathMap = newPathMap.slice(1)
-      console.log('completed', newPathMap)
       commit('refreshPathMap', {piece: 'knight', map: newPathMap})
     },
     evaluateKnightMove ({state, commit, dispatch, rootState}, action){
@@ -143,10 +149,10 @@ export default {
     useKnightAbility ({state, dispatch}, action) {
       const { activeItem } = state
       dispatch(`${activeItem}Use`, action)
-      dispatch('spendPoint', {type: `${activeItem}`})
       const actionQueue = [
         {type: 'state', quantity: 'free'},
-        {type: 'activeItem', quantity: null}
+        {type: 'activeItem', quantity: null},
+        {type: 'activeItems', quantity: state.activeItems.concat([item])}
       ]
       dispatch('setAttributes', {actionQueue, type: 'Knight'})
       dispatch('refreshKnightPathmap')
@@ -174,6 +180,9 @@ export default {
     damageKnight({state, commit, dispatch}) {
       commit('setKnightAttribute', {type: 'health', quantity: state.health - 1})
       if (state.health < 1) dispatch('gameOver', {winner: 'knight'})
+    },
+    ambushKnight({state, commit, dispatch}){
+      commit('setKnightAttribute', {type: 'state', quantity: 'combat'})
     }
   }
 }

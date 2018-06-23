@@ -8,7 +8,7 @@
     </div>
     <div class="monster-stats">
       <h3> Monsters </h3>
-      <span v-for="monster in tribe" class="monster-card"/>
+      <span :key="`${name}-${monsterIdx}`" v-for="(monster, monsterIdx) in tribe" class="monster-card"/>
     </div>
     <div class ="actions">
       <button @click="tribeSpecial"> Special Ability </button>

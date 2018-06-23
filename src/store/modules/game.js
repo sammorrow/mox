@@ -8,13 +8,26 @@ export default {
         if (!state[id]){
           state[id] = {
             players: [],
-            round: 0
+            round: 0,
+            messages: []
           }
           state.gamesList = state.gamesList.concat([id])
         } 
         state[id][type] = quantity
         state.gamesList = state.gamesList.concat([])
-
+      },
+      addMessage (state, action) {
+        const { id, message } = action
+        if (!state[id]){
+          state[id] = {
+            players: [],
+            round: 0,
+            messages: []
+          }
+          state.gamesList = state.gamesList.concat([id])
+        }
+        state[id].messages = state[id].messages.concat(message).slice(1)
+        state.gamesList = state.gamesList.concat([])
       }
     },
     actions: {
@@ -22,6 +35,9 @@ export default {
         for (let transaction in action){
           commit('setGameAttribute', {type: transaction, quantity: action[transaction], id: action.id})
         }
+      },
+      _addMessage({commit}, action){
+        commit(`addMessage`, action)
       }
     },
     getters: {

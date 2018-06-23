@@ -41,7 +41,6 @@ export function getNeighbors(board, cell, orientation){
     pathMap = [],
     cellOrientation = orientation !== undefined ? orientation : board[y][x].orientation
     let newY, newX, adjacentTile
-    console.log('but then', cellOrientation)
     reorient(board[y][x].connections, cellOrientation).forEach((connection, direction) => {
       newY = !(direction % 2) ? y + (-1 + direction) : y,
       newX = direction % 2 ? x + (2 - direction) : x
@@ -88,7 +87,6 @@ export function findPath(startX, startY, endX, endY, board, orientation, race) {
         else neighbors = []
 
         for (i = 0, l = neighbors.length; i < l; ++i) {
-            console.log('firing neighbor')
             neighbor = neighbors[i];
             x = neighbor.x;
             y = neighbor.y;
@@ -139,8 +137,17 @@ function backtrace(node) {
 export function canShoot(shooter, target){
   const direction = shooter.x === target.x ? 'horizontal' : shooter.y === target.y ? 'vertical' : null
   if (!direction) return false
-  const path = direction === 'horizontal' ? shooter.x - target.x : shooter.y - target.y
-  // shoot up - down
+
+  const path = direction === 'horizontal' ? 'x' : 'y',
+    axis = direction === 'horizontal' ? 'y' : 'x',
+    top = Math.max(shooter[path], target[path]),
+    bottom = Math.min(shooter[path], target[path])
+  let lastCell = null
+  for (let j = top; j >= bottom; j--){
+    if (lastCell && lastCell.connections[0])// can shoot straight through])
+    lastCell = board[axis === 'y' ? shoooter.y : j][axis === 'x' ? shooter.x : j]
+  }
+    // shoot up - down
   // build array
   // inspect for connection in pathway all the way through/
 

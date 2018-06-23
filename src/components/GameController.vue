@@ -10,6 +10,7 @@
 <script>
 import Game from './Game'
 import GameSettings from './GameSettings'
+import mixins from '../mixins';
 
 export default {
   name: 'GameController',
@@ -19,19 +20,20 @@ export default {
     'game-settings': GameSettings
   },
   computed: {
-    ws () {return this.$store.state.lobby.ws},
+    ws () {return this.$store.state.ws},
     gamesState (){return this.$store.state.game}
   },
   methods: {
+    ...mixins,
     inProgress(){
       return this.gamesState.gamesList.includes(this.id) ? this.gamesState[this.id].round !== 0 : false
     },
-    startGame: function(){
-      this.ws.send(JSON.stringify(['start', this.id]))
+    startGame(){
+      this.send('start', this.id)
     }
   },
   mounted(){
-    this.ws.send(JSON.stringify(['join', this.id]))
+    this.send('join', this.id)
   }
 }
 </script>

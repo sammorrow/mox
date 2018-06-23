@@ -48,16 +48,17 @@ export default {
 
 .main-container {
   display: flex;
-  max-width: 85%;
+  max-width: 100%;
   margin: 0;
   padding: 0;
 }
 
 .player-view {
-  max-width: 85%;
+  /* max-width: 85%; */
 }
 
-sidebar {
+.sidebar {
+  position: fixed;
   width: 100%;
 }
 

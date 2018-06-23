@@ -18,6 +18,7 @@ export default new Vuex.Store({
     player
   },
   state: {
+    ws: {},
     board:  new Array(32).fill(0).map((el, colIdx) => new Array(32).fill(0).map((el, rowIdx) => ({x: rowIdx, y: colIdx, type: 1, tile: '01', back: '00', orientation: 0, tokens: {}})))
   },
   getters: {
@@ -29,6 +30,9 @@ export default new Vuex.Store({
     }
   },
   mutations: {
+    setRootAttribute(state, action){
+      state[action.type] = action.quantity
+    },
     setCell (state, action) {
         const { y, x } = action,
           board = [ ...state.board ]
@@ -45,11 +49,24 @@ export default new Vuex.Store({
       const { piece, map } = action
       
       state[piece].pathMap = map;
+    },
+    setBoardAttribute (state, action){
+      state.board = action.board
     }
   },
   actions: {
     _set({dispatch}, action){
       dispatch(`set${action.space}Attributes`, action)
+    },
+    setRootAttributes({commit}, action){
+      for (let transaction in action){
+        commit('setRootAttribute', {type: transaction, quantity: action[transaction]})
+      }
+    },
+    setBoardAttributes({commit}, action){
+      for (let transaction in action){
+        commit('setBoardAttribute', {type: transaction, quantity: action[transaction]})
+      }
     },
     startGame ({commit, dispatch}) {
       const startX = 15, startY = 15,
@@ -86,22 +103,26 @@ export default new Vuex.Store({
         startCell = state.board[startPos.y][startPos.x]
       commit('setCell', {y: startCell.y, x: startCell.x, tokens: Object.assign({}, startCell.tokens, {[piece]: false})})
     },
-    autofillTiles ({state, commit}, action) {
-      console.log({...action}, 'wooo')
+    autofillTiles ({state, commit, dispatch}, action) {
       const actionCopy = { ...action }, { y, x } = actionCopy,
         originCell = state.board[y][x], 
-        rollTheDice = () => `0${Math.floor(Math.random() * 5)}`,
+        rollTheDice = () => {
+          let baseStr = `0${Math.floor(Math.random() * 5)}`
+          if (Math.random() > 0.5) baseStr += "_a"
+          return baseStr
+        },
         goForBroke = () => `0${Math.floor(Math.random() * 3)}`
 
       reorient(originCell.connections, originCell.orientation).forEach((opening, idx) => {
         if (opening && (y > 0 && y < 31 && x > 0 && x < 31)){
           const tileID = rollTheDice(),
             newY = (idx % 2) ? y : y - 1 + idx, newX = (idx % 2) ? x + 2 - idx : x,
-            payload = {y: newY, x: newX, type: 2, orientation: 0, tile: tileID, back: goForBroke(), tokens: {}, connections: connectionsMap[tileID]}
+            payload = {y: newY, x: newX, type: 2, orientation: 0, tile: tileID, back: goForBroke(), tokens: {}, connections: connectionsMap[tileID.slice(0,2)]}
           
           if (state.board[newY][newX].type === 1)  commit('setCell', payload)
         }
-      })      
+      })
+      dispatch('setFree')      
     },
     autosetTile ({dispatch, state}, action) {
       const { startPos, endPos, direction } = action,
