@@ -1,8 +1,25 @@
 <template>
-  <div> HI </div>
+  <div> 
+    <button @click="dummySend"> submit </button>
+  </div>
 </template>
 
 <script>
+import VueSwing from 'vue-swing'
+import mixins from '../mixins' 
+export default {
+  components: {
+    'vue-swing': VueSwing, 
+  },
+  methods: {
+    ...mixins,
+    dummySend(){
+      console.log('sent')
+      this.send('submit', [{lane: 0, unit: 'grunt'}])
+    }
+  }
+}
+
 </script>
 
 <style scoped>
