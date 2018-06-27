@@ -1,22 +1,16 @@
 <template>
-  <draggable class="card" @start="drag=true" @end="drag=false">
-    <transition-group>
-      <p v-for='(data, index) in card' :key="index"> {{ data }} </p>
-    </transition-group>
-  </draggable>
+  <div class="card">
+    <p v-for='(data, index) in card' :key="index"> {{ data }} </p>
+  </div>
   
 </template>
 
 <script>
-  import draggable from 'vuedraggable'
-
   export default {
-    components: {
-      draggable
-    },  
+    props: ['name'],
     data() { 
       return {
-        card: [ "name goes here",
+        card: [ this.name,
         "placeholder text",
         "1",
         "image goes here"]
