@@ -15,7 +15,16 @@
     'enemy-hand' : EnemyHand,
     'player-hand' : PlayerHand,
     'game-board' : GameBoard
-    }}
+    },
+  methods: {
+    ...mixins,
+    dummySend(){
+      console.log('sent')
+      this.send('submit', [{lane: 0, unit: 'grunt'}])
+    }
+  }
+}
+
 </script>
 
 <style scoped>

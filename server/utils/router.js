@@ -8,14 +8,8 @@ var rooms = {
 
 function create(opts) {
   console.log('attempting to create', opts)
-  // try {
-  //   util.game(opts)
-  // } catch(err) {
-  //   return this.err(err.message)
-  // }
   opts.id = this.id
   var g = new Game(opts)
-  console.log('the new guy', g.join)
   rooms[g.id] = g
   this.send('route', 'g/' + g.id)
   g.once('kill', kill)

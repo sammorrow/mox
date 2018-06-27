@@ -2,7 +2,6 @@ let _ = require('./_')
 let Human = require('./human')
 let Room = require('./room')
 let Sock = require('./sock')
-let createGame = require('../game')
 let SECOND = 1000
 let MINUTE = 1000 * 60
 let HOUR   = 1000 * 60 * 60 * 24
@@ -33,9 +32,10 @@ let games = {}
 module.exports = class Game extends Room {
   constructor({id, title, seats, isPrivate}) {
     super({isPrivate})
-    const gameData = createGame();
     var gameID = _.id()
-    Object.assign(this, { title, seats,
+    Object.assign(this, {
+      title, 
+      seats,
       delta: -1,
       hostID: id,
       id: gameID,
@@ -124,7 +124,6 @@ module.exports = class Game extends Room {
         usedSeats,
         totalSeats,
         name: game.name,
-        //format: game.format,
         timeCreated: game.timeCreated,
       })
     }
@@ -147,9 +146,7 @@ module.exports = class Game extends Room {
       }
     }
 
-    if (this.didGameStart)
-      return sock.err('game already started')
-
+    if (this.didGameStart) return sock.err('game already started')
 
     super.join(sock)
     var h = new Human(sock)
@@ -203,7 +200,6 @@ module.exports = class Game extends Room {
       id,
       round: this.round,
       self: this.players.indexOf(h),
-      //format: this.format,
     })
   }
 
@@ -226,11 +222,9 @@ module.exports = class Game extends Room {
     state.id = this.id
     state.space = 'Game'
     state.players = this.players.map(p => ({
-      // hash: p.hash,
       name: p.name,
       time: p.time,
-      // packs: p.packs.length,
-      // isBot: p.isBot,
+      deck: p.deck.length || 0,
       isConnected: p.isConnected,
       isReadyToStart: p.isReadyToStart,
     }))
@@ -262,7 +256,6 @@ module.exports = class Game extends Room {
     var draftcap = {
       "gameID": this.id,
       "players": humans,
-      //"type": this.type,
       "sets": this.sets,
       "seats": this.seats,
       "time": Date.now(),
@@ -286,55 +279,8 @@ module.exports = class Game extends Room {
     this.meta({ round: -1 })
   }
 
-  pass(p, pack) {
-    if (!pack.length) {
-      if (!--this.packCount)
-        this.startRound()
-      else
-        this.meta()
-      return
-    }
-
-    var index = this.players.indexOf(p) + this.delta
-    var p2 = _.at(this.players, index)
-    p2.getPack(pack)
-    if (!p2.isBot)
-      this.meta()
-  }
-
   startRound() {
-    // if (this.round != 0) {
-    //     for (var p of this.players) {
-    //         p.cap.packs[this.round] = p.picks
-    //         p.picks = []
-    //         if(!p.isBot) {
-    //           p.draftLog.round[this.round] = p.draftLog.pack
-    //           p.draftLog.pack = []
-    //         }
-    //     }
-    // }
-    if (this.round++ === this.rounds)
-      return this.end()
-
-    // var {players} = this
-    // this.packCount = players.length
-    // this.delta *= -1
-
-    // for (var p of players)
-    //   if (!p.isBot)
-    //     p.getPack(this.pool.pop())
-
-    // //let the bots play
-    // this.meta = ()=>{}
-    // var index = players.findIndex(p => !p.isBot)
-    // var count = players.length
-    // while (--count) {
-    //   index -= this.delta
-    //   p = _.at(players, index)
-    //   if (p.isBot)
-    //     p.getPack(this.pool.pop())
-    // }
-    // this.meta = Game.prototype.meta
+    if (this.round++ === this.rounds) return this.end()
     this.meta({ round: this.round })
   }
 
@@ -345,45 +291,44 @@ module.exports = class Game extends Room {
 
   start({useTimer, timerLength, shufflePlayers}) {
 
-    var {players} = this
-    var p
+    const { players } = this
 
-    if (!players.every(x => x.isReadyToStart))
-      return
+    if (!players.every(x => x.isReadyToStart)) return
 
     this.renew()
-
-    // if (/sealed/.test(this.type)) {
-    //   this.round = -1
-    //   var pools = Pool(src, players.length, true)
-    //   for (p of players) {
-    //     p.pool = pools.pop()
-    //     p.send('pool', p.pool)
-    //     p.send('set', { round: -1 })
-    //   }
-    //   console.log(`${this.type} using ${this.format} game ${this.id} started with ${this.players.length} players`)
-    //   Game.broadcastGameInfo()
-    //   return
-    // }
-
-    // for (p of players) {
-    //   p.useTimer = useTimer
-    //   p.timerLength = timerLength
-    // }
-
     console.log(`4 player match ${this.id} started with ${this.players.length} players and ${this.seats} seats`)
     Game.broadcastGameInfo()
-  
-    // if(shufflePlayers)
-    //   _.shuffle(players)
 
-
-    this.pool = []
-
-    // players.forEach((p, i) => {
-    //   p.on('pass', this.pass.bind(this, p))
-    //   p.send('set', { space: 'Lobby', self: i })
-    // })
+    players.forEach((p, i) => {
+      p.on('submit', this.receive.bind(this, p))
+      //p.send('set', { space: 'Lobby', self: i })
+    })
     this.startRound()
+  }
+
+  receive(info){
+    const { players } = this
+    console.log("GAME RECEIVED", info)
+    if (players.every(x => x.isReady)){
+      this.executeTurn()
+    }
+  }
+
+  executeTurn(){
+    const { players } = this;
+    let board = []
+    players.forEach(p => {
+      p.orders.forEach(order => {
+        if (typeof order.lane !== 'number') console.log('invalid order')
+        else p.board[order.lane] = order.unit 
+      })
+      board = board.concat({id: p.id, board: p.board})
+    })
+    console.log('our board: ', board)
+    players.forEach(p => {
+      p.send('set', {board})
+      p.draw();
+    })
+    this.meta();
   }
 }
