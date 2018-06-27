@@ -1,5 +1,6 @@
 .DS_Store
 node_modules/
+build/
 
 .idea
 .vscode
@@ -7,6 +8,3 @@ node_modules/
 *.ntvs*
 *.njsproj
 *.sln
-
-build/
-static/

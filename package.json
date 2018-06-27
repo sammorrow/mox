@@ -1,8 +1,8 @@
 {
-  "name": "vast",
+  "name": "mox",
   "version": "0.0.1",
-  "description": "vast",
-  "author": "Sam Morrow <smorrow@oberlin.edu>",
+  "description": "Simultaneous-turn card game",
+  "author": "The Morrow Brothers",
   "private": true,
   "scripts": {
     "dev": "node server/app & webpack --config build/webpack.config.js -w",
