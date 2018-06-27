@@ -1,7 +1,7 @@
 <template>
 <div class="lobby-container">
   <div class="lobby">
-    <h1 class="lobby-header"> <span class="left"> VAST ONLINE </span> </h1>
+    <h1 class="lobby-header"> <span class="left"> MOX ONLINE </span> </h1>
     <div class="lobby-subheader">
       <p> {{ lobbyState.numUsers }} user{{lobbyState.numUsers !== 1 ? 's' : '' }} online • {{ lobbyState.numPlayers}} player{{lobbyState.numPlayers !== 1 ? 's' : '' }} in {{ lobbyState.numActiveGames }} game{{lobbyState.numActiveGames !== 1 ? 's' : '' }}</p>
     </div>
