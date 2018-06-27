@@ -1,11 +1,11 @@
 <template>
   <draggable class="card" @start="drag=true" @end="drag=false">
     <transition-group>
-      <p v-for='data in card' :key="data.id"> {{ data }} </p>
+      <p v-for='(data, index) in card' :key="index"> {{ data }} </p>
     </transition-group>
   </draggable>
   
-</template>d
+</template>
 
 <script>
   import draggable from 'vuedraggable'

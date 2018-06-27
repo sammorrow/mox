@@ -1,22 +1,21 @@
-var Game = require('./game')
-var Room = require('./room')
+const Game = require('./game')
+const Room = require('./room')
 const Sock = require('./sock')
-//var db = require('../db')
-var rooms = {
+const rooms = {
   lobby: new Room({isPrivate: true})
 }
 
 function create(opts) {
   console.log('attempting to create', opts)
   opts.id = this.id
-  var g = new Game(opts)
+  const g = new Game(opts)
   rooms[g.id] = g
   this.send('route', 'g/' + g.id)
   g.once('kill', kill)
 }
 
 function join(roomID) {
-  var room = rooms[roomID]
+  const room = rooms[roomID]
   if (!room) return this.err(`room ${roomID} not found`)
   this.exit()
   room.join(this, roomID)
@@ -34,5 +33,4 @@ module.exports = function (ws) {
     console.log('client disconnected :(', ws.id)
   })
   Game.broadcastGameInfo()
-  //sock.send('set', { serverVersion: '0.1' })
 }

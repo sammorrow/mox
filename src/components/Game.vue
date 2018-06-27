@@ -10,6 +10,7 @@
   import EnemyHand from './EnemyHand'
   import PlayerHand from './PlayerHand'
   import GameBoard from './GameBoard'
+  import mixins from '../mixins'
 
   export default {components: {
     'enemy-hand' : EnemyHand,
