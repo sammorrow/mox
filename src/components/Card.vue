@@ -1,11 +1,11 @@
 <template>
   <draggable class="card" @start="drag=true" @end="drag=false">
     <transition-group>
-      <p :key="name.index"> {{ name }} </p>
+      <p v-for='data in card' :key="data.id"> {{ data }} </p>
     </transition-group>
   </draggable>
   
-</template>
+</template>d
 
 <script>
   import draggable from 'vuedraggable'
@@ -16,10 +16,10 @@
     },  
     data() { 
       return {
-        name: "name goes here",
-        text: "placeholder text",
-        power: "1",
-        image: "image goes here"
+        card: [ "name goes here",
+        "placeholder text",
+        "1",
+        "image goes here"]
       }
     }
   }
